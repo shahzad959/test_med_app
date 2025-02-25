@@ -1,0 +1,1 @@
+export const API_URL = window.location.hostname === "localhost" ? "<https://labs-mongo-tight-whispering-airplane.mongo.databases.labs.skills.network>" :"<https://labs-mongo-tight-whispering-airplane.mongo.databases.labs.skills.network>"
