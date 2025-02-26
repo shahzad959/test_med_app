@@ -1,117 +1,118 @@
-import React from 'react';
-import './Sign_Up.css'; // Import the CSS file
+import React, { useState } from 'react';
+import './Sign_Up.css';
+import { Link, useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config';
 
 const Sign_Up = () => {
-  return (
-    <div className="container" style={{ marginTop: '5%' }}>
-      {/* Main container with margin-top */}
-      <div className="signup-grid">
-        {/* Grid layout for sign-up form */}
-        <div className="signup-text">
-          {/* Title for the sign-up form */}
-          <h1>Sign Up</h1>
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState([]); // Array to store multiple errors
+    const navigate = useNavigate();
+
+    const register = async (e) => {
+        e.preventDefault();
+
+        const response = await fetch(`${API_URL}/api/auth/register`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                password: password,
+                phone: phone,
+            }),
+        });
+
+        const json = await response.json();
+
+        if (json.authtoken) {
+            sessionStorage.setItem("auth-token", json.authtoken);
+            sessionStorage.setItem("name", name);
+            sessionStorage.setItem("phone", phone);
+            sessionStorage.setItem("email", email);
+
+            navigate("/");
+            window.location.reload();
+        } else {
+            if (json.errors) {
+                setErrors(json.errors.map(error => error.msg)); // Store all error messages
+            } else {
+                setErrors([json.error]); // Store single error message
+            }
+        }
+    };
+
+    return (
+        <div className="container" style={{ marginTop: '5%' }}>
+            <div className="signup-grid">
+                <div className="signup-form">
+                    <form method="POST" onSubmit={register}>
+                        <div className="form-group">
+                            <label htmlFor="name">Name</label>
+                            <input
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                type="text"
+                                name="name"
+                                id="name"
+                                className="form-control"
+                                placeholder="Enter your name"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="email">Email</label>
+                            <input
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                type="email"
+                                name="email"
+                                id="email"
+                                className="form-control"
+                                placeholder="Enter your email"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="phone">Phone</label>
+                            <input
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                type="text"
+                                name="phone"
+                                id="phone"
+                                className="form-control"
+                                placeholder="Enter your phone number"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="password">Password</label>
+                            <input
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                type="password"
+                                name="password"
+                                id="password"
+                                className="form-control"
+                                placeholder="Enter your password"
+                            />
+                        </div>
+                        {errors.length > 0 && (
+                            <div className="err" style={{ color: 'red' }}>
+                                {errors.map((error, index) => (
+                                    <div key={index}>{error}</div>
+                                ))}
+                            </div>
+                        )}
+                        <button type="submit" className="btn btn-primary">Sign Up</button>
+                    </form>
+                    <p>Already have an account? <Link to="/login">Login</Link></p>
+                </div>
+            </div>
         </div>
-        <div className="signup-text1" style={{ textAlign: 'left' }}>
-          {/* Text for existing members to log in */}
-          Already a member?{' '}
-          <span>
-            <a href="../Login/Login.html" style={{ color: '#2190FF' }}>
-              Login
-            </a>
-          </span>
-        </div>
-        <div className="signup-form">
-          {/* Form for user sign-up */}
-          <form>
-            {/* Start of the form */}
-
-            <div className="form-group">
-              {/* Form group for user's name */}
-              <label htmlFor="name">Name</label>
-              {/* Label for name input field */}
-              <input
-                type="text"
-                name="name"
-                id="name"
-                required
-                className="form-control"
-                placeholder="Enter your name"
-                aria-describedby="helpId"
-              />
-              {/* Text input field for name */}
-            </div>
-
-            <div className="form-group">
-              {/* Form group for user's phone number */}
-              <label htmlFor="phone">Phone</label>
-              {/* Label for phone input field */}
-              <input
-                type="tel"
-                name="phone"
-                id="phone"
-                required
-                className="form-control"
-                placeholder="Enter your phone number"
-                aria-describedby="helpId"
-              />
-              {/* Tel input field for phone number */}
-            </div>
-
-            <div className="form-group">
-              {/* Form group for user's email */}
-              <label htmlFor="email">Email</label>
-              {/* Label for email input field */}
-              <input
-                type="email"
-                name="email"
-                id="email"
-                required
-                className="form-control"
-                placeholder="Enter your email"
-                aria-describedby="helpId"
-              />
-              {/* Email input field */}
-            </div>
-
-            <div className="form-group">
-              {/* Form group for user's password */}
-              <label htmlFor="password">Password</label>
-              {/* Label for password input field */}
-              <input
-                type="password"
-                name="password"
-                id="password"
-                required
-                className="form-control"
-                placeholder="Enter your password"
-                aria-describedby="helpId"
-              />
-              {/* Password input field */}
-            </div>
-
-            <div className="btn-group">
-              {/* Button group for form submission and reset */}
-              <button
-                type="submit"
-                className="btn btn-primary mb-2 mr-1 waves-effect waves-light"
-              >
-                Submit
-              </button>
-              {/* Submit button */}
-              <button
-                type="reset"
-                className="btn btn-danger mb-2 waves-effect waves-light"
-              >
-                Reset
-              </button>
-              {/* Reset button */}
-            </div>
-          </form>
-          {/* End of the form */}
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
-export default Sign_Up; // Ensure the export matches the component name
+export default Sign_Up;
